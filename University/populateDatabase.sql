@@ -1,38 +1,7 @@
---
---  Create a small demo university database
---
-
-set termout on
-set feedback on
-prompt Building sample university database.  Please wait ...
-set termout off
-set feedback off
-
-drop table Department cascade constraint;
-drop table Faculty    cascade constraint;
-drop table Subject    cascade constraint;
-drop table Class      cascade constraint;
-drop table Student    cascade constraint;
-drop table Enrolled   cascade constraint;
-drop table Marks      cascade constraint;
-
-create table Department (
-	dept#   NUMBER(5),
-        dname   VARCHAR(25),
-	PRIMARY KEY (dept#)
-);
 insert into Department values (1, 'Artificial Intelligence');
 insert into Department values (2, 'Computer Systems');
 insert into Department values (3, 'Information Engineering');
 insert into Department values (4, 'Software Engineering');
-
-create table Faculty (
-	staff#  NUMBER(6),
-	name    VARCHAR(20),
-        dept#   NUMBER(5),
-	PRIMARY KEY (staff#),
-	FOREIGN KEY (dept#) REFERENCES Department(dept#)
-);
 
 insert into Faculty values (811, 'Ken Robinson', 4);
 insert into Faculty values (831, 'Geoff Whale', 1);
@@ -49,13 +18,6 @@ insert into Faculty values (961, 'Richard Buckland', 4);
 insert into Faculty values (962, 'Ashesh Mahidadia', 4);
 insert into Faculty values (971, 'Xuemin Lin', 2);
 
-create table Subject (
-	id	CHAR(8) CONSTRAINT ValidClassID
-		CHECK (id LIKE 'COMP%'),
-	name	VARCHAR(30),
-	PRIMARY KEY (id)
-);
-
 insert into Subject values ('COMP1001', 'Introduction to Computing');
 insert into Subject values ('COMP1011', 'Computing 1A');
 insert into Subject values ('COMP1021', 'Computing 1B');
@@ -69,16 +31,6 @@ insert into Subject values ('COMP4249', 'Computing 4');
 insert into Subject values ('COMP9311', 'Database Systems');
 insert into Subject values ('COMP9315', 'Database System Implementation');
 
-create table Class (
-	subject CHAR(8),
-	meetsAt VARCHAR(15),
-	room    VARCHAR(15),
-	teacher NUMBER(6),
-	PRIMARY KEY (subject,meetsAt),
-	FOREIGN KEY (teacher) REFERENCES Faculty(staff#),
-	FOREIGN KEY (subject) REFERENCES Subject(id)
-);
-
 insert into Class values ('COMP1001', 'Tuesday 2pm', 'Elec Eng LG1', 951);
 insert into Class values ('COMP1011', 'Monday 11am', 'Mathews A', 961);
 insert into Class values ('COMP1021', 'Tuesday 11am', 'Mathews A', 931);
@@ -91,18 +43,6 @@ insert into Class values ('COMP3411', 'Wednesday 11am', 'Elec Eng G25', 912);
 insert into Class values ('COMP4249', 'Thursday 4pm', 'Elec Eng 408', 911);
 insert into Class values ('COMP9311', 'Tuesday 6pm', 'Elec Eng LG1', 971);
 insert into Class values ('COMP9315', 'Wednesday 3pm', 'Webster B', 921);
-
-create table Student (
-	student# NUMBER(7),
-	name     VARCHAR(20),
-        major    VARCHAR(10) CONSTRAINT ValidCourse
-		 CHECK (major IN ('Comp Eng','Comp Sci','Info Sys','MInfSci')),
-	stage    NUMBER(5) CONSTRAINT ValidStage
-		 CHECK(stage BETWEEN 0 AND 5),
-        age      NUMBER(5) CONSTRAINT ValidAge
-		 CHECK(age BETWEEN 15 AND 65),
-	PRIMARY KEY (student#)
-);
 
 insert into Student values (2111111, 'John Smith', 'Comp Sci', 3, 21);
 insert into Student values (2111222, 'Jack Smith', 'Comp Eng', 3, 21);
@@ -124,14 +64,6 @@ insert into Student values (2271234, 'Jenny Smith', 'Comp Sci', 2, 20);
 insert into Student values (2275777, 'John Smith', 'Comp Sci', 1, 18);
 insert into Student values (2287654, 'George Smith', 'MInfSci', 1, 26);
 insert into Student values (2291929, 'Greg Smith', 'MInfSci', 1, 28);
-
-create table Enrolled (
-	student# NUMBER(7),
-	subject# CHAR(8),
-	PRIMARY KEY (student#,subject#),
-	FOREIGN KEY (student#) REFERENCES Student(student#),
-	FOREIGN KEY (subject#) REFERENCES Subject(id)
-);
 
 insert into Enrolled values (2111111, 'COMP3231');
 insert into Enrolled values (2111111, 'COMP3311');
@@ -166,16 +98,6 @@ insert into Enrolled values (2271234, 'COMP2011');
 insert into Enrolled values (2275777, 'COMP1001');
 insert into Enrolled values (2287654, 'COMP9311');
 insert into Enrolled values (2291929, 'COMP9311');
-
-create table Marks (
-	student# NUMBER(7),
-	subject# CHAR(8),
-	period	 CHAR(4),
-	mark     NUMBER(3),
-	PRIMARY KEY (student#,subject#,period),
-	FOREIGN KEY (student#) REFERENCES Student(student#),
-	FOREIGN KEY (subject#) REFERENCES Subject(id)
-);
 
 insert into Marks values (2111111, 'COMP1011', '97s1', 70);
 insert into Marks values (2111111, 'COMP1021', '97s2', 75);

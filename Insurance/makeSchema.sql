@@ -4,26 +4,26 @@
 
 -- Give user some feedback
 
-set termout on
+SET termout ON
 prompt Clearing database and building fresh schema.
-set termout off
-set feedback on
+SET termout OFF
+SET feedback ON
 
 -- Remove any existing tables
 
-drop table Party cascade constraints;
-drop table Client cascade constraints;
-drop table Employee cascade constraints;
-drop table Claimant cascade constraints;
-drop table Policy cascade constraints;
-drop table Holds cascade constraints;
-drop table UnderWritingAction cascade constraints;
-drop table CoveredItem cascade constraints;
-drop table Coverage cascade constraints;
-drop table Covers cascade constraints;
-drop table RatingAction cascade constraints;
-drop table Claim cascade constraints;
-drop table ClaimAction cascade constraints;
+DROP TABLE Party CASCADE CONSTRAINTS;
+DROP TABLE Client CASCADE CONSTRAINTS;
+DROP TABLE Employee CASCADE CONSTRAINTS;
+DROP TABLE Claimant CASCADE CONSTRAINTS;
+DROP TABLE Policy CASCADE CONSTRAINTS;
+DROP TABLE Holds CASCADE CONSTRAINTS;
+DROP TABLE UnderWritingAction CASCADE CONSTRAINTS;
+DROP TABLE CoveredItem CASCADE CONSTRAINTS;
+DROP TABLE Coverage CASCADE CONSTRAINTS;
+DROP TABLE Covers CASCADE CONSTRAINTS;
+DROP TABLE RatingAction CASCADE CONSTRAINTS;
+DROP TABLE Claim CASCADE CONSTRAINTS;
+DROP TABLE ClaimAction CASCADE CONSTRAINTS;
 
 --
 --
@@ -32,41 +32,41 @@ drop table ClaimAction cascade constraints;
 --	* assume that every organisation has a contact person
 --	* for private individuals, organisation is NULL
 --
-create table Party (
-	id		integer     primary key,
-	organisation	varchar(40),
-	givenName	varchar(20) not null,
-	familyName	varchar(20) not null,
-	street		varchar(20) not null,
-	suburb		varchar(30) not null,
-	state		char(3)	    not null
+CREATE TABLE Party (
+	id		INTEGER     PRIMARY KEY,
+	organisation	VARCHAR(40),
+	givenName	VARCHAR(20) NOT NULL,
+	familyName	VARCHAR(20) NOT NULL,
+	street		VARCHAR(20) NOT NULL,
+	suburb		VARCHAR(30) NOT NULL,
+	state		char(3)	    NOT NULL
 				    check (state in ('ACT', 'NSW', 'NT',
 						     'QLD', 'SA', 'TAS',
 						     'VIC', 'WA')),
-	postcode	char(4)     not null,
-	phone		varchar(15) not null
---	fax		varchar(15)
+	postcode	char(4)     NOT NULL,
+	phone		VARCHAR(15) NOT NULL
+--	fax		VARCHAR(15)
 );
 
 --
 -- Client, Employee, Claimant:
 --	* subclasses of Party
 --
-create table Client (
-	id		integer     primary key
-				    references Party(id)
+CREATE TABLE Client (
+	id		INTEGER     PRIMARY KEY
+				    REFERENCES Party(id)
 );
 
-create table Employee (
-	staff#		integer     primary key,
-	id              integer     not null unique references Party(id),
-	position	varchar(20),
+CREATE TABLE Employee (
+	staff#		INTEGER     PRIMARY KEY,
+	id              INTEGER     NOT NULL unique REFERENCES Party(id),
+	position	VARCHAR(20),
 	salary		real
 );
 
-create table Claimant (
-	id		integer     primary key
-				    references Party(id)
+CREATE TABLE Claimant (
+	id		INTEGER     PRIMARY KEY
+				    REFERENCES Party(id)
 );
 
 --
@@ -79,18 +79,18 @@ create table Claimant (
 --		OK ... underwritten (active if valid fields non-NULL)
 --		CA ... cancelled
 --
-create table Policy (
-	id		integer     primary key,
-	created		date,
-	validFrom	date,
-	validUntil	date,
+CREATE TABLE Policy (
+	id		INTEGER     PRIMARY KEY,
+	created		DATE,
+	validFrom	DATE,
+	validUntil	DATE,
 	premium		real,
-	paidOn		date,
-	status		char(2)     not null
+	paidOn		DATE,
+	status		char(2)     NOT NULL
 				    check
 				    (status in ('DR','RA','UW',
 						'OK','CA'))
---	notes		varchar(100)
+--	notes		VARCHAR(100)
 );
 
 --
@@ -98,10 +98,10 @@ create table Policy (
 --	* relationship between client and policy
 --	* allows multiple persons to be associated with a single policy
 --
-create table Holds (
-	client		integer     not null references Client(id),
-        policy          integer     not null references Policy(id),
-        primary key(client,policy)
+CREATE TABLE Holds (
+	client		INTEGER     NOT NULL REFERENCES Client(id),
+        policy          INTEGER     NOT NULL REFERENCES Policy(id),
+        PRIMARY KEY(client,policy)
 );
 
 --
@@ -110,28 +110,28 @@ create table Holds (
 --	* actions:
 --		D ... decline,  A ... approve
 --
-create table UnderWritingAction (
-	policy		integer     not null references Policy(id),
-	underwriter	integer     not null references Employee(id),
-	action		char(1)     not null check (action in ('D','A')),
-	happened	date        not null
---	notes		varchar(100)
+CREATE TABLE UnderWritingAction (
+	policy		INTEGER     NOT NULL REFERENCES Policy(id),
+	underwriter	INTEGER     NOT NULL REFERENCES Employee(id),
+	action		char(1)     NOT NULL check (action in ('D','A')),
+	happened	DATE        NOT NULL
+--	notes		VARCHAR(100)
 );
 
 --
 -- CoveredItem
 --	* details about an item (car) covered by a policy
 --
-create table CoveredItem (
-	id		integer	    primary key,
-	make		varchar(15) not null,
-	model		varchar(20) not null,
-	year		char(4)     not null,
-	registration	varchar(10) unique not null,
---	engineNumber	varchar(20) unique not null,
---	chassisNumber	varchar(20) unique not null,
-	marketValue	real        not null
---	notes		varchar(100)
+CREATE TABLE CoveredItem (
+	id		INTEGER	    PRIMARY KEY,
+	make		VARCHAR(15) NOT NULL,
+	model		VARCHAR(20) NOT NULL,
+	year		char(4)     NOT NULL,
+	registration	VARCHAR(10) unique NOT NULL,
+--	engineNumber	VARCHAR(20) unique NOT NULL,
+--	chassisNumber	VARCHAR(20) unique NOT NULL,
+	marketValue	real        NOT NULL
+--	notes		VARCHAR(100)
 );
 
 --
@@ -139,12 +139,12 @@ create table CoveredItem (
 --	* describes precisely what eventuality is covered 
 --	  and what are the entitlements if it's claimed against
 --
-create table Coverage (
-	id		integer     primary key,
-	description	varchar(40) not null,
---	conditions	varchar(40) not null,
-	coverValue	real        not null
---	excess		real        not null
+CREATE TABLE Coverage (
+	id		INTEGER     PRIMARY KEY,
+	description	VARCHAR(40) NOT NULL,
+--	conditions	VARCHAR(40) NOT NULL,
+	coverValue	real        NOT NULL
+--	excess		real        NOT NULL
 );
 
 --
@@ -152,11 +152,11 @@ create table Coverage (
 --	* links an item, its coverage and the policy
 --	  that includes this coverage
 --
-create table Covers (
-	item		integer     not null references CoveredItem(id),
-	policy		integer     not null references Policy(id),
-	coverage	integer     not null references Coverage(id),
-	primary key(item,policy,coverage)
+CREATE TABLE Covers (
+	item		INTEGER     NOT NULL REFERENCES CoveredItem(id),
+	policy		INTEGER     NOT NULL REFERENCES Policy(id),
+	coverage	INTEGER     NOT NULL REFERENCES Coverage(id),
+	PRIMARY KEY(item,policy,coverage)
 );
 
 --
@@ -167,31 +167,31 @@ create table Covers (
 --	* actions:
 --		D ... decline,  A ... approve
 --
-create table RatingAction (
-	coverage	integer     not null references Coverage(id),
-	rater		integer     not null references Employee(id),
-	action		char(1)     not null
+CREATE TABLE RatingAction (
+	coverage	INTEGER     NOT NULL REFERENCES Coverage(id),
+	rater		INTEGER     NOT NULL REFERENCES Employee(id),
+	action		char(1)     NOT NULL
 				    check (action in ('D','A')),
-	happened	date        not null,
-	rate		real	    not null
---	notes		varchar(100)
+	happened	DATE        NOT NULL,
+	rate		real	    NOT NULL
+--	notes		VARCHAR(100)
 );
 
 --
 -- Claim:
---	* main details of a claim on a specific policy
---	* on-going processing details are held in ClaimAction
+--	* main details of a claim ON a specific policy
+--	* ON-going processing details are held in ClaimAction
 --	* status:
 --		A ... active, Z ... closed
 --
-create table Claim (
-	id		integer     primary key,
-	policy		integer	    references Policy(id),
-	claimant	integer     references Claimant(id),
-	lodgeDate	date	    not null,
-	eventDate	date	    not null,
-	reserve		real	    not null,
-	status		char(2)	    not null
+CREATE TABLE Claim (
+	id		INTEGER     PRIMARY KEY,
+	policy		INTEGER	    REFERENCES Policy(id),
+	claimant	INTEGER     REFERENCES Claimant(id),
+	lodgeDate	DATE	    NOT NULL,
+	eventDate	DATE	    NOT NULL,
+	reserve		real	    NOT NULL,
+	status		char(2)	    NOT NULL
 				    check (status in ('A','Z'))
 );
 
@@ -199,25 +199,25 @@ create table Claim (
 -- ClaimAction:
 --	* audit of actions in the processing of a claim
 --	* actions:
---		OP ... open the claim (and set reserve)
+--		OP ... open the claim (and SET reserve)
 --		RE ... re-open claim (if previously closed)
 --		PO ... payment out (+ amount + recipient)
 --		PI ... payment in (+ amount + source)
 --		SB ... subrogate claim (+ income + source)
 --		CL ... close the claim
 --
-create table ClaimAction (
-	claim		integer	    not null references Claim(id),
-	handler		integer	    not null references Employee(id),
-	action		char(2)	    not null
+CREATE TABLE ClaimAction (
+	claim		INTEGER	    NOT NULL REFERENCES Claim(id),
+	handler		INTEGER	    NOT NULL REFERENCES Employee(id),
+	action		char(2)	    NOT NULL
 				    check
 				    (action in ('OP','RE','PO',
 						'PI','SB','CL')),
-	happened	date	    not null,
+	happened	DATE	    NOT NULL,
 	amount		real,	    -- if payment involved
-	actor		integer	    references Party(id)
---	notes		varchar(100)
+	actor		INTEGER	    REFERENCES Party(id)
+--	notes		VARCHAR(100)
 );
 
-set termout on
-set feedback on
+SET termout ON
+SET feedback ON
